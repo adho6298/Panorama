@@ -1,73 +1,68 @@
 
 # LIBRARIES
 # importing required libraries
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-from scipy import ndimage
-import numpy as np
-import cv2
-import os
-import glob
-from scipy.ndimage import maximum_filter  # importing this library so we can call scipy.ndimage.filters.maximum_filter as simply: maximum_filter()
+import matplotlib.pyplot as plt             # for plotting images
+import matplotlib.image as mpimg            # for reading in images   
+from scipy import ndimage                   # for image processing
+import numpy as np                          # for numerical processing   
+import cv2                                  # for computer vision tasks
+import os                                   # for file path operations
+import glob                                 # for file pattern matching
+from scipy.ndimage import maximum_filter    # importing this library so we can call scipy.ndimage.filters.maximum_filter as simply: maximum_filter()
+
+''' 
+FUNCTIONS AND UTILITIES 
+'''
+
+''' Display Function for plotting an image using cv2.imshow '''
+def show_img(img, window_name):               # img = image to be displayed, window_name = name of the window
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL) # Create a resizable window
+    h, w = img.shape[:2]                            # Get image dimensions
+    cv2.resizeWindow(window_name, w, h)             # Resize window to image dimensions
+    cv2.imshow(window_name, img)                    # Display the image in the window
 
 
-# FUNCTIONS AND UTILITIES
-# Display Function for plotting an image using cv2.imshow
-def show_img(img, window_name):
-    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-    h, w = img.shape[:2]
-    cv2.resizeWindow(window_name, w, h)
-    cv2.imshow(window_name, img)
+''' Displays all images in the list in separate resizable windows '''
+def show_all_images(image_list, window_name):                     # image_list = list of images to be displayed, window_name = name of the window
+    for idx, img in enumerate(image_list):                              # Looping through the list of images with index
+        show_img(img, window_name=f"{window_name} - Image {idx+1}")     # Displaying each image with its index in the window name
+    cv2.waitKey(0)                                                      # Wait for a key press to close the windows
+    cv2.destroyAllWindows()                                             # Close all OpenCV windows
 
 
-def show_all_images(image_list, window_name):
-    """
-    Displays all images in the list in separate resizable windows.
-    """
-    for idx, img in enumerate(image_list):
-        show_img(img, window_name=f"{window_name} - Image {idx+1}")
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+''' Function to scale an image by a given factor '''
+def scale_img(image_list, scale):             # image_list = list of images to be scaled, scale = scaling factor (0 < scale <= 1)
+    scaled_images = []                              # Creating an empty list to store the scaled images
+    for img in image_list:                          # Looping through the list of images
+        resized = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)       # Scaling the image using cv2.resize()
+        scaled_images.append(resized)               # Adding the scaled image to the list
+    return scaled_images                            # Returning the list of scaled images
 
 
-# Function to scale an image by a given factor
-def scale_img(image_list, scale):
-    """
-    Scales every image in the provided list by the given scaling factor.
-    Returns a new list of scaled images.
-    """
-    scaled_images = []
-    for img in image_list:
-        resized = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
-        scaled_images.append(resized)
-    return scaled_images
+''' Function to import images from a given folder '''
+def load_images_from_folder(folder_path):                     # folder_path = path to the folder containing images
+    image_list = []                                                 # Creating an empty list to store the images
+    extensions = ('*.jpg', '*.jpeg', '*.png', '*.bmp', '*.tiff')    # Supported image file extensions (only grabbing images)
+    for ext in extensions:                                          # Looping through the list of extensions
+        search_pattern = os.path.join(folder_path, ext)             # Creating the search pattern to find images in "folder_path" with extension "ext"
+        print(f"Searching for: {search_pattern}")                   # Debug print to show what pattern we are searching for
+        for filename in glob.glob(search_pattern):                  # Looping through the list of files matching the search pattern
+            print(f"Found file: {filename}")                        # Debug print to show each file found
+            img = cv2.imread(filename)                              # Reading the image using cv2.imread()
+            if img is not None:                                     # Checking if the image was read successfully
+                image_list.append(img)                              # Adding the image to the list
+    return image_list                                               # Returning the list of images
 
-# Function to import an image from a given path
-def import_img(path):
-    img = cv2.imread(path)
-    return img
+''' Function to convert a list of images from color to grayscale '''
+def convert_to_gray(image_list):                  # image_list = list of color images to be converted
+    gray_images = []                                    # Creating an empty list to store the grayscale images
+    for img in image_list:                              # Looping through the list of images
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)    # Converting the image to grayscale using cv2.cvtColor()
+        gray_images.append(gray)                        # Adding the grayscale image to the list
+    return gray_images                                  # Returning the list of grayscale images
 
-def load_images_from_folder(folder_path):
-    image_list = []
-    extensions = ('*.jpg', '*.jpeg', '*.png', '*.bmp', '*.tiff')
-    for ext in extensions:
-        search_pattern = os.path.join(folder_path, ext)
-        print(f"Searching for: {search_pattern}")  # Debug print
-        for filename in glob.glob(search_pattern):
-            print(f"Found file: {filename}")  # Debug print
-            img = cv2.imread(filename)
-            if img is not None:
-                image_list.append(img)
-    return image_list
-
-def convert_to_gray(image_list):
-    gray_images = []
-    for img in image_list:
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        gray_images.append(gray)
-    return gray_images
-
-def detect_corners(image_list):
+''' Function to detect corners in a list of grayscale images '''
+def detect_corners(image_list):             # image_list = list of grayscale images to detect corners in
     # Using cornerHarris() to detect corners. (grayscale image, block size, ksize, k)
     # cornerHarris() returns a 2D array the same size of the grayscale image that is basically a heat map of how likely
     # it is that any 1 pixel is a corner
@@ -86,15 +81,11 @@ def detect_corners(image_list):
     # Effect: Controls sensitivity to corners vs edges. Smaller k favors corners more aggressively.
     k = 0.04
 
-    # Again I could do this all in one loop but we are going to make a new loop just to keep things simple
-
     corners = []                         # Creating object to hold corner data in
 
-    # Loop to generate corner heat map for all images
-    for img in image_list:                   # for every object in the list of images
-        corner = cv2.cornerHarris(img, block_size, ksize, k)  # perform cornerHarris() using the above set parameters
-        corners.append(corner)           # adding the corner heat map to the list of corner heat maps
-    
+    for img in image_list:                                      # Looping through the list of images
+        corner = cv2.cornerHarris(img, block_size, ksize, k)    # Perform cornerHarris() using the above set parameters
+        corners.append(corner)                                  # Adding the corner heat map to the list of corner heat maps
     
     masks = []                            # creating a list to store the corner masks in
     imgs_with_corners = []                # creating a list to store the edited images with corners marked
@@ -105,14 +96,14 @@ def detect_corners(image_list):
         # from https://docs.opencv.org/3.4/dc/d0d/tutorial_py_features_harris.html
         corner_mask = corners[i] > 0.01 * corners[i].max()   # creates a true/false mask of whether or not the algo thinks a pixel is a corner
 
-        masks.append(corner_mask)         # adding the mask to the masks list so we can play with it later if needed
+        masks.append(corner_mask)         # Adding the mask to the masks list so we can play with it later if needed
 
-        img_gray = image_list[i]
+        img_gray = image_list[i]            # Getting the grayscale image to draw on
         img_bgr = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2BGR)  # Convert grayscale to BGR
-        img_bgr[corner_mask] = [0, 0, 255]
-        imgs_with_corners.append(img_bgr)
+        img_bgr[corner_mask] = [0, 0, 255]  # Set corner pixels to red in BGR format
+        imgs_with_corners.append(img_bgr)           # Adding the edited image to the list
         
-    return corners, masks, imgs_with_corners
+    return corners, masks, imgs_with_corners        # Returning the list of corner heat maps, masks, and images with corners marked
 
 
 
@@ -246,15 +237,31 @@ def feature_desc(gray_img, nBest):
   return desc, des_coords
 
 
+# def plot_feature_desc(grays, selected_coords):
+#     """
+#     Returns a list of images with feature descriptor points drawn (in blue),
+#     compatible with show_all_images (expects a list of np.ndarray images).
+#     """
+#     for i in range(len(grays)):
+#         feat_desc, feat_des_coords = feature_desc(grays[i], selected_coords[i])
+#         plt.imshow(feat_desc, cmap = "gray")
+#         plt.axis("off")
+#         plt.show()
+#     return  
+
 def plot_feature_desc(grays, selected_coords):
     """
-    Returns a list of images with feature descriptor points drawn (in blue),
-    compatible with show_all_images (expects a list of np.ndarray images).
+    Plots each feature descriptor visualization in a separate figure with a title.
+    All figures are shown at once (non-blocking).
     """
     for i in range(len(grays)):
-        feat_desc, feat_des_coords = feature_desc(grays[i], selected_coords[i])
-        plt.imshow(feat_desc, cmap = "gray")
+        feat_desc, _ = feature_desc(grays[i], selected_coords[i])
+        plt.figure(figsize=(5, 5))
+        plt.imshow(feat_desc, cmap="gray")
+        plt.suptitle("Feature Descriptors")
+        plt.title(f"Image: {i+1}")
         plt.axis("off")
-        plt.show()
-    return  
+        plt.show(block=False)
+    plt.show()  # Keeps all figures open until you close them manually
+    return
 

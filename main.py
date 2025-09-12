@@ -5,8 +5,8 @@ Part A - Inputing Images
 '''
 
 ''' Load images from the specified folder. ONLY UNCOMMENT ONE OF THE FOLLOWING LINES '''
-# image_list = load_images_from_folder('Panorama/Images/VictoriaLibrary')
-image_list = load_images_from_folder('Panorama/Images/Indoors')
+image_list = load_images_from_folder('Panorama/Images/VictoriaLibrary')
+# image_list = load_images_from_folder('Panorama/Images/Indoors')
 # image_list = load_images_from_folder('Panorama/Images/Flatirons')
 # image_list = load_images_from_folder('Panorama/Images/CULogo')
 # image_list = load_images_from_folder('Panorama/Images/CUBoulderSatView')
@@ -37,6 +37,11 @@ Part C - ANMS
 '''
 
 ''' Applying ANMS to the detected corners in all of the grayscale images '''
+anms_coords_list = []  # Store ANMS coordinates for each image
+for idx in range(len(corners)):
+    anms_coords, _ = anms(corners[idx], nBest=500)
+    anms_coords_list.append(anms_coords)
+
 images_with_anms = plot_anms_results(scale_list, corners)
 show_all_images(images_with_anms, "ANMS Selected Corners")
 
@@ -44,4 +49,4 @@ show_all_images(images_with_anms, "ANMS Selected Corners")
 Part D - Feature Descriptors
 '''
 
-plot_feature_desc(gray_images, corners)  # Computing feature descriptors for all of the images
+plot_feature_desc(gray_images, anms_coords_list)  # Computing feature descriptors for all of the images
