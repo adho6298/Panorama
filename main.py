@@ -7,24 +7,24 @@ Part 1 - Inputing Images
 
 
 ''' Load images from the specified folder. ONLY UNCOMMENT ONE OF THE FOLLOWING LINES '''
-image_list = load_images_from_folder('Images/VictoriaLibrary')
-# image_list = load_images_from_folder('Images/Indoors')
+image_list = load_images_from_folder('Images/VictoriaLibrary') # Pass
+# image_list = load_images_from_folder('Images/Indoors') # Fail
 # image_list = load_images_from_folder('Images/Flatirons')
-# image_list = load_images_from_folder('Images/CULogo')
-# image_list = load_images_from_folder('Images/CUBoulderSatView')
-# image_list = load_images_from_folder('Images/Checkerboard')
-#show_all_images(image_list, "Source Images")        # Displaying all of the source images
+# image_list = load_images_from_folder('Images/CULogo') # Fail
+# image_list = load_images_from_folder('Images/CUBoulderSatView') # Pass
+# image_list = load_images_from_folder('Images/Checkerboard') # Fail
+show_all_images(image_list, "Source Images")        # Displaying all of the source images
 
 '''Scaling down the images to make processing faster '''
 scale_images = [img.copy() for img in image_list]   # Creating a copy of the original list for processing
 scale = 0.6                                         # Scaling factor (0 < scale <= 1)
 scale_list = scale_img(image_list, scale)           # Scaling all of the images
-#show_all_images(scale_list, "Scaled Images")        # Displaying all of the scaled images
+show_all_images(scale_list, "Scaled Images")        # Displaying all of the scaled images
 
 ''' Converting to grayscale to make corner detection easier '''
 gray_images = [img.copy() for img in scale_list]    # Creating a copy of the scaled list for processing
 gray_images = convert_to_gray(gray_images)          # Converting all of the images to grayscale
-#show_all_images(gray_images, "Gray Images")         # Displaying all of the gray images
+show_all_images(gray_images, "Gray Images")         # Displaying all of the gray images
 
 
 '''
@@ -34,7 +34,7 @@ Part 2 - Detect Corners
 
 ''' Detecting corners in all of the grayscale images '''
 corners, masks, imgs_with_corners = detect_corners(gray_images)  # Detecting corners in all of the grayscale images
-#show_all_images(imgs_with_corners, "Corners Detected")           # Displaying all of the images with corners marked in red
+show_all_images(imgs_with_corners, "Corners Detected")           # Displaying all of the images with corners marked in red
 
 
 '''
@@ -49,7 +49,7 @@ for idx in range(len(corners)):
     anms_coords_list.append(anms_coords)
 
 images_with_anms = plot_anms_results(scale_list, corners)
-#show_all_images(images_with_anms, "ANMS Selected Corners")
+show_all_images(images_with_anms, "ANMS Selected Corners")
 
 
 '''
@@ -68,7 +68,7 @@ Part 5 Feature Matching
 
 ''' Matching features between all consecutive image pairs and displaying the matches '''
 match_images, matches_list = show_all_feature_matches(scale_list, feature_desc_list, feature_coords_list)
-#show_all_images(match_images, "Feature Matches")
+show_all_images(match_images, "Feature Matches")
 
 
 '''
@@ -77,7 +77,7 @@ Part 6 - Refine Matches
 
 inlier_images, homographies = inliers(match_images, matches_list, scale_list, feature_coords_list)  # Refine matches and compute homographies between all consecutive image pairs using RANSAC
 # Show all inlier match images
-#show_all_images(inlier_images, "Inlier Feature Matches (RANSAC)")
+show_all_images(inlier_images, "Inlier Feature Matches (RANSAC)")
 
 '''
 Part 7 - Cylindrical Warping
@@ -94,7 +94,7 @@ K = np.array([[fx, 0, cx],
 
 # Apply cylindrical warping to all images
 cylindrical_images = [cylindrical_warp(img, K) for img in scale_list]
-#show_all_images(cylindrical_images, "Cylindrical Warped Images")
+show_all_images(cylindrical_images, "Cylindrical Warped Images")
 
 '''
 Part 8 - Warping Images with Homographies
@@ -140,7 +140,7 @@ for img, H in zip(cylindrical_images, global_homographies):
     warped_images.append(warped_img)
     offsets.append((0, 0))  # All images are now in the same canvas
 
-#show_all_images(warped_images, "Warped Images (Homography)")
+show_all_images(warped_images, "Warped Images (Homography)")
 
 '''
 Part 9 - Blending to Create Panorama
