@@ -7,12 +7,12 @@ Part 1 - Inputing Images
 
 
 ''' Load images from the specified folder. ONLY UNCOMMENT ONE OF THE FOLLOWING LINES '''
-image_list = load_images_from_folder('Images/VictoriaLibrary') # Pass
-# image_list = load_images_from_folder('Images/Indoors') # Fail
+image_list = load_images_from_folder('Images/VictoriaLibrary')
+# image_list = load_images_from_folder('Images/Indoors')
 # image_list = load_images_from_folder('Images/Flatirons')
-# image_list = load_images_from_folder('Images/CULogo') # Fail
-# image_list = load_images_from_folder('Images/CUBoulderSatView') # Pass
-# image_list = load_images_from_folder('Images/Checkerboard') # Fail
+# image_list = load_images_from_folder('Images/CULogo')
+# image_list = load_images_from_folder('Images/CUBoulderSatView')
+# image_list = load_images_from_folder('Images/Checkerboard')
 show_all_images(image_list, "Source Images")        # Displaying all of the source images
 
 '''Scaling down the images to make processing faster '''
